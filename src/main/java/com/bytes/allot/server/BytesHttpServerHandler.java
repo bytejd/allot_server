@@ -1,5 +1,7 @@
 package com.bytes.allot.server;
 
+import com.bytes.allot.factory.serverInterfaceFactory.BytesReqFactory;
+import com.bytes.allot.serverInterface.RequestGetAllotModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -14,10 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
-import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
-import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
@@ -27,6 +26,8 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
     private HttpRequest request;
     /** Buffer that stores the response content */
     private final StringBuilder buf = new StringBuilder();
+    private String uri = null;
+    private String httpContentStr = null;
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -35,9 +36,11 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
+
         if (msg instanceof HttpRequest) {
             HttpRequest request = this.request = (HttpRequest) msg;
 
+            request.getDecoderResult();
             System.out.println(request.getMethod());
             if (HttpHeaders.is100ContinueExpected(request)) {
                 send100Continue(ctx);
@@ -50,7 +53,8 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
             buf.append("VERSION: ").append(request.getProtocolVersion()).append("\r\n");
             buf.append("HOSTNAME: ").append(HttpHeaders.getHost(request, "unknown")).append("\r\n");
             buf.append("REQUEST_URI: ").append(request.getUri()).append("\r\n\r\n");
-            String uri = request.getUri();
+            String uriStr = request.getUri();
+            this.uri = uriStr;
             System.out.println(uri);
             if (uri.equals("/allot")){
                 System.out.println("allot method");
@@ -89,8 +93,17 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
             ByteBuf content = httpContent.content();
             if (content.isReadable()) {
                 buf.append("CONTENT: ");
-                buf.append(content.toString(CharsetUtil.UTF_8));
-                buf.append("\r\n");
+                String contentString = content.toString(CharsetUtil.UTF_8);
+                this.httpContentStr = contentString;
+                System.out.println(contentString);
+
+                BytesReqFactory factory = new BytesReqFactory();
+                factory.Create(this.uri, this.httpContentStr);
+                RequestGetAllotModel reqModel = factory.getReqModel();
+                System.out.println(reqModel.toString());
+                String rspJson = reqModel.convertToJson();
+                buf.append(rspJson+"\r\n");
+
                 appendDecoderResult(buf, request);
             }
 
