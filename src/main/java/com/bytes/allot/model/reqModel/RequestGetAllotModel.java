@@ -1,4 +1,4 @@
-package com.bytes.allot.serverInterface;
+package com.bytes.allot.model.reqModel;
 
 import com.google.gson.Gson;
 

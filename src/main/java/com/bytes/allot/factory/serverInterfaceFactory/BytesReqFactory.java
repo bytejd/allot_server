@@ -1,7 +1,7 @@
 package com.bytes.allot.factory.serverInterfaceFactory;
 
 import com.bytes.allot.factory.BytesBaseFactory;
-import com.bytes.allot.serverInterface.RequestGetAllotModel;
+import com.bytes.allot.model.reqModel.RequestGetAllotModel;
 import com.google.gson.JsonIOException;
 
 /**

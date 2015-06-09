@@ -1,7 +1,7 @@
 package com.bytes.allot.server;
 
 import com.bytes.allot.factory.serverInterfaceFactory.BytesReqFactory;
-import com.bytes.allot.serverInterface.RequestGetAllotModel;
+import com.bytes.allot.model.reqModel.RequestGetAllotModel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -46,13 +46,13 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
                 send100Continue(ctx);
             }
 
-            buf.setLength(0);
-            buf.append("WELCOME TO THE WILD WILD WEB SERVER\r\n");
-            buf.append("===================================\r\n");
-
-            buf.append("VERSION: ").append(request.getProtocolVersion()).append("\r\n");
-            buf.append("HOSTNAME: ").append(HttpHeaders.getHost(request, "unknown")).append("\r\n");
-            buf.append("REQUEST_URI: ").append(request.getUri()).append("\r\n\r\n");
+//            buf.setLength(0);
+//            buf.append("WELCOME TO THE WILD WILD WEB SERVER\r\n");
+//            buf.append("===================================\r\n");
+//
+//            buf.append("VERSION: ").append(request.getProtocolVersion()).append("\r\n");
+//            buf.append("HOSTNAME: ").append(HttpHeaders.getHost(request, "unknown")).append("\r\n");
+//            buf.append("REQUEST_URI: ").append(request.getUri()).append("\r\n\r\n");
             String uriStr = request.getUri();
             this.uri = uriStr;
             System.out.println(uri);
@@ -62,12 +62,12 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
 
             HttpHeaders headers = request.headers();
             if (!headers.isEmpty()) {
-                for (Map.Entry<String, String> h: headers) {
-                    String key = h.getKey();
-                    String value = h.getValue();
-                    buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
-                }
-                buf.append("\r\n");
+//                for (Map.Entry<String, String> h: headers) {
+//                    String key = h.getKey();
+//                    String value = h.getValue();
+//                    buf.append("HEADER: ").append(key).append(" = ").append(value).append("\r\n");
+//                }
+//                buf.append("\r\n");
             }
 
             QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.getUri());
@@ -101,22 +101,24 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
                 try {
                     factory.Create(this.uri, this.httpContentStr);
                     RequestGetAllotModel reqModel = factory.getReqModel();
+                    if (reqModel instanceof RequestGetAllotModel){
+                        System.out.println("it is get allot");
+                    }
                     String rspJson = reqModel.convertToJson();
                     System.out.println(reqModel.toString());
                     buf.append(rspJson+"\r\n");
                 }
                 catch (Exception e){
-
+                    buf.append("PARAM ERROR"+"\r\n");
                 }
-
-
-
-
-                appendDecoderResult(buf, request);
+                finally {
+                    appendDecoderResult(buf, request);
+                }
             }
 
+
             if (msg instanceof LastHttpContent) {
-                buf.append("END OF CONTENT\r\n");
+//                buf.append("END OF CONTENT\r\n");
 
                 LastHttpContent trailer = (LastHttpContent) msg;
                 if (!trailer.trailingHeaders().isEmpty()) {
