@@ -1,6 +1,7 @@
 package com.bytes.allot.serverInterface;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * Created by PeterZhou on 15/6/4.
@@ -20,10 +21,18 @@ public class RequestBaseModel {
     public RequestBaseModel(String mJsonStr){
         Gson gson = new Gson();
         RequestBaseModel gsonObj;
-        gsonObj = gson.fromJson(mJsonStr, RequestBaseModel.class);
-        this.devType = gsonObj.devType;
-        this.sysVer = gsonObj.sysVer;
-        this.appVer = gsonObj.appVer;
+        try {
+            gsonObj = gson.fromJson(mJsonStr,RequestBaseModel.class);
+            this.devType = gsonObj.devType;
+            this.sysVer = gsonObj.sysVer;
+            this.appVer = gsonObj.appVer;
+        }
+        catch (JsonSyntaxException e){
+            this.devType = 0;
+            this.sysVer = null;
+            this.appVer = null;
+        }
+
     }
 
     public String convertToJson(){

@@ -98,11 +98,19 @@ public class BytesHttpServerHandler extends SimpleChannelInboundHandler<Object> 
                 System.out.println(contentString);
 
                 BytesReqFactory factory = new BytesReqFactory();
-                factory.Create(this.uri, this.httpContentStr);
-                RequestGetAllotModel reqModel = factory.getReqModel();
-                System.out.println(reqModel.toString());
-                String rspJson = reqModel.convertToJson();
-                buf.append(rspJson+"\r\n");
+                try {
+                    factory.Create(this.uri, this.httpContentStr);
+                    RequestGetAllotModel reqModel = factory.getReqModel();
+                    String rspJson = reqModel.convertToJson();
+                    System.out.println(reqModel.toString());
+                    buf.append(rspJson+"\r\n");
+                }
+                catch (Exception e){
+
+                }
+
+
+
 
                 appendDecoderResult(buf, request);
             }

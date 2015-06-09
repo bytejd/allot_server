@@ -2,6 +2,7 @@ package com.bytes.allot.factory.serverInterfaceFactory;
 
 import com.bytes.allot.factory.BytesBaseFactory;
 import com.bytes.allot.serverInterface.RequestGetAllotModel;
+import com.google.gson.JsonIOException;
 
 /**
  * Created by PeterZhou on 15/6/6.
@@ -16,8 +17,14 @@ public class BytesReqFactory extends BytesBaseFactory {
     {
         if (productName.equals(GetAllot))
         {
-            RequestGetAllotModel model = new RequestGetAllotModel(productParam);
-            this.reqModel = model;
+            try {
+                RequestGetAllotModel model = new RequestGetAllotModel(productParam);
+                this.reqModel = model;
+            }
+            catch (JsonIOException e){
+                this.reqModel = null;
+            }
+
         }
     }
 
